@@ -19,6 +19,19 @@ export default function App() {
   useEffect(() => {
     getJSON<Project[]>("/projects").then(setProjects).catch(console.error);
   }, []);
+  
+  async function onDelete(id: number) {
+    const sure = confirm("Delete this entry?");
+    if (!sure) return;
+    try {
+      await fetch(`http://localhost:4000/time-entries/${id}`, {
+        method: "DELETE",
+      });
+      await loadDay(date); // list reload
+    } catch (e) {
+      alert("Delete failed.");
+    }
+  }
 
   async function loadDay(d: string) {
     const q = new URLSearchParams({ userId: "1", date_gte: d, date_lte: d });
@@ -124,7 +137,17 @@ export default function App() {
                       </div>
                       <div className="text-sm opacity-70">{e.note || "—"}</div>
                     </div>
-                    <div className="font-semibold">{e.durationMinutes} min</div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="font-semibold">
+                        {e.durationMinutes} min
+                      </div>
+                      <button
+                        className="btn btn-error btn-sm"
+                        onClick={() => onDelete(e.id)}>
+                        Delete
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
