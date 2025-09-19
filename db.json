@@ -26,25 +26,9 @@
       "id": "1",
       "userId": 1,
       "projectId": 1,
-      "date": "2025-09-16",
-      "durationMinutes": 120,
-      "note": "UI"
-    },
-    {
-      "id": "1",
-      "userId": 1,
-      "projectId": 1,
       "date": "2025-09-20",
       "durationMinutes": 30,
       "note": "Test entry"
-    },
-    {
-      "id": "632c",
-      "userId": 1,
-      "projectId": 2,
-      "date": "2025-09-17",
-      "durationMinutes": 76,
-      "note": ""
     },
     {
       "id": "4946",
@@ -63,11 +47,19 @@
       "note": ""
     },
     {
-      "id": "79d2",
+      "id": "dbd5",
       "userId": 1,
       "projectId": 1,
       "date": "2025-09-19",
       "durationMinutes": 46,
+      "note": ""
+    },
+    {
+      "id": "7a3e",
+      "userId": 1,
+      "projectId": 1,
+      "date": "2025-09-19",
+      "durationMinutes": 61,
       "note": ""
     }
   ]

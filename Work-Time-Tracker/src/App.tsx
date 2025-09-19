@@ -1,18 +1,18 @@
+// src/App.tsx
 import { useEffect, useState } from "react";
 import { API, getJSON, sendJSON } from "./lib/api";
 
-// ---- types ----
 type Project = { id: number; name: string; client?: string; isActive: boolean };
 type TimeEntry = {
   id: number;
   userId: number;
   projectId: number;
-  date: string;
+  date: string; // YYYY-MM-DD
   durationMinutes: number;
   note?: string;
 };
 
-// ---- small helpers (local, no imports) ----
+// --- helpers (local) ---
 function formatDateDisplay(iso: string): string {
   const [y, m, d] = iso.split("-");
   return `${d}-${m}-${y}`;
@@ -34,7 +34,7 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // --- edit mode states ---
+  // --- edit mode ---
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editMinutes, setEditMinutes] = useState<number>(60);
   const [editNote, setEditNote] = useState<string>("");
@@ -44,19 +44,18 @@ export default function App() {
     getJSON<Project[]>("/projects").then(setProjects).catch(console.error);
   }, []);
 
-  // robust day loader with debug logs
+  // load entries for selected day
   async function loadDay(d: string) {
-    const url = `/time-entries?userId=1&date=${encodeURIComponent(d)}`;
-    console.log("GET", API + url);
-    const data = await getJSON<TimeEntry[]>(url);
-    console.log("RESP", data);
+    const data = await getJSON<TimeEntry[]>(
+      `/time-entries?userId=1&date=${encodeURIComponent(d)}`
+    );
     setEntries(data);
   }
-
   useEffect(() => {
     loadDay(date);
   }, [date]);
 
+  // create
   async function onSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -79,29 +78,40 @@ export default function App() {
     }
   }
 
+  // delete (optimistic)
   async function onDelete(id: number) {
-    const sure = confirm("Delete this entry?");
-    if (!sure) return;
-    await fetch(`${API}/time-entries/${id}`, { method: "DELETE" });
+    if (!confirm(`Delete entry #${id}?`)) return;
+
+    const res = await fetch(`${API}/time-entries/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      alert("Delete failed");
+      return;
+    }
+
+    // Frissítsük a napi listát a szerverről
     await loadDay(date);
   }
 
+  // edit
   function startEdit(entry: TimeEntry) {
     setEditingId(entry.id);
     setEditMinutes(entry.durationMinutes);
     setEditNote(entry.note ?? "");
   }
-
   async function saveEdit(id: number) {
-    await fetch(`${API}/time-entries/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ durationMinutes: editMinutes, note: editNote }),
-    });
-    setEditingId(null);
-    await loadDay(date);
+    try {
+      const res = await fetch(`${API}/time-entries/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ durationMinutes: editMinutes, note: editNote }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setEditingId(null);
+      await loadDay(date);
+    } catch (err) {
+      alert("Update failed.");
+    }
   }
-
   function cancelEdit() {
     setEditingId(null);
   }
@@ -120,6 +130,7 @@ export default function App() {
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
               />
+
               <select
                 className="select select-bordered w-full"
                 value={projectId}
@@ -130,6 +141,7 @@ export default function App() {
                   </option>
                 ))}
               </select>
+
               <input
                 type="number"
                 className="input input-bordered w-full"
@@ -139,6 +151,7 @@ export default function App() {
                 value={minutes}
                 onChange={(e) => setMinutes(Number(e.target.value))}
               />
+
               <input
                 type="text"
                 className="input input-bordered w-full"
@@ -146,9 +159,11 @@ export default function App() {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
               />
+
               <button className="btn btn-primary w-full" disabled={saving}>
                 {saving ? "Saving..." : "Save"}
               </button>
+
               {error && (
                 <div className="alert alert-error">
                   <span>{error}</span>
@@ -165,23 +180,6 @@ export default function App() {
               Entries — {formatDateDisplay(date)}
             </h2>
 
-            {/* DEBUG PANEL */}
-            <p className="text-xs opacity-60 mb-2">
-              Debug API: {API} • Date: {date} • Count: {entries.length}
-            </p>
-            <button
-              type="button"
-              className="btn btn-sm mb-2"
-              onClick={async () => {
-                const all = await getJSON<TimeEntry[]>(
-                  `/time-entries?userId=1`
-                );
-                console.log("ALL (first 5):", all.slice(0, 5));
-                setEntries(all); // show all for quick check
-              }}>
-              Debug: load all
-            </button>
-
             {entries.length === 0 ? (
               <p className="opacity-70">No entries for this day yet.</p>
             ) : (
@@ -189,9 +187,9 @@ export default function App() {
                 {entries.map((e) => (
                   <li
                     key={e.id}
-                    className="p-3 rounded border grid sm:grid-cols-12 gap-3 items-center">
-                    {/* Bal blokk: projekt + note */}
-                    <div className="sm:col-span-7">
+                    className="p-3 rounded border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    {/* Left: project + note */}
+                    <div className="flex-1">
                       <div className="font-medium">
                         {projects.find((p) => p.id === e.projectId)?.name ??
                           `Project #${e.projectId}`}
@@ -210,14 +208,14 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Közép: percek */}
-                    <div className="sm:col-span-3">
+                    {/* Middle: minutes */}
+                    <div>
                       {editingId === e.id ? (
                         <input
                           type="number"
                           min={1}
                           step={15}
-                          className="input input-bordered w-full"
+                          className="input input-bordered w-24 text-right"
                           value={editMinutes}
                           onChange={(ev) =>
                             setEditMinutes(Number(ev.target.value))
@@ -231,8 +229,8 @@ export default function App() {
                       )}
                     </div>
 
-                    {/* Jobb blokk: akciók */}
-                    <div className="sm:col-span-2 flex items-center justify-end gap-2">
+                    {/* Right: actions */}
+                    <div className="flex gap-2">
                       {editingId === e.id ? (
                         <>
                           <button
