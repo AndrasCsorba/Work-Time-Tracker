@@ -1,4 +1,4 @@
-export const API = "http://localhost:4000";
+export const API = "http://localhost:4001";
 
 export async function getJSON<T>(path: string): Promise<T> {
   const res = await fetch(`${API}${path}`);

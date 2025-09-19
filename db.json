@@ -14,16 +14,70 @@
       "client": "Ace Corp",
       "isActive": true
     },
-    { "id": 2, "name": "Mobil app", "client": "Beta Gmbh", "isActive": true }
+    {
+      "id": 2,
+      "name": "Mobil app",
+      "client": "Beta Gmbh",
+      "isActive": true
+    }
   ],
   "time-entries": [
     {
       "id": 1,
       "userId": 1,
       "projectId": 1,
-      "date": "19.06.2025",
+      "date": "2025-09-16",
       "durationMinutes": 120,
       "note": "UI"
+    },
+    {
+      "id": 1,
+      "userId": 1,
+      "projectId": 1,
+      "date": "2025-09-20",
+      "durationMinutes": 30,
+      "note": "Test entry"
+    },
+
+    {
+      "id": "632c",
+      "userId": 1,
+      "projectId": 2,
+      "date": "2025-09-17",
+      "durationMinutes": 76,
+      "note": ""
+    },
+    {
+      "id": "4946",
+      "userId": 1,
+      "projectId": 2,
+      "date": "2025-09-17",
+      "durationMinutes": 16,
+      "note": ""
+    },
+    {
+      "id": "d449",
+      "userId": 1,
+      "projectId": 1,
+      "date": "2025-09-19",
+      "durationMinutes": 76,
+      "note": ""
+    },
+    {
+      "id": "2228",
+      "userId": 1,
+      "projectId": 1,
+      "date": "2025-09-01",
+      "durationMinutes": 61,
+      "note": ""
+    },
+    {
+      "id": "7e83",
+      "userId": 1,
+      "projectId": 1,
+      "date": "2025-09-19",
+      "durationMinutes": 46,
+      "note": ""
     }
   ]
 }

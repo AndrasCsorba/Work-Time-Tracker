@@ -122,6 +122,10 @@ export default function App() {
             <h2 className="text-xl font-semibold mb-2">
               Entries — {formatDateDisplay(date)}
             </h2>
+            // Debug count
+            <p className="text-xs opacity-60 mb-2">
+              Debug count: {entries.length}
+            </p>
             {entries.length === 0 ? (
               <p className="opacity-70">No entries for this day yet.</p>
             ) : (
