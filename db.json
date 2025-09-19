@@ -61,6 +61,14 @@
       "date": "2025-09-01",
       "durationMinutes": 61,
       "note": ""
+    },
+    {
+      "id": "79d2",
+      "userId": 1,
+      "projectId": 1,
+      "date": "2025-09-19",
+      "durationMinutes": 46,
+      "note": ""
     }
   ]
 }

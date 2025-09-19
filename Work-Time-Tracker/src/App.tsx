@@ -34,6 +34,11 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // --- edit mode states ---
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editMinutes, setEditMinutes] = useState<number>(60);
+  const [editNote, setEditNote] = useState<string>("");
+
   // load projects once
   useEffect(() => {
     getJSON<Project[]>("/projects").then(setProjects).catch(console.error);
@@ -79,6 +84,26 @@ export default function App() {
     if (!sure) return;
     await fetch(`${API}/time-entries/${id}`, { method: "DELETE" });
     await loadDay(date);
+  }
+
+  function startEdit(entry: TimeEntry) {
+    setEditingId(entry.id);
+    setEditMinutes(entry.durationMinutes);
+    setEditNote(entry.note ?? "");
+  }
+
+  async function saveEdit(id: number) {
+    await fetch(`${API}/time-entries/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ durationMinutes: editMinutes, note: editNote }),
+    });
+    setEditingId(null);
+    await loadDay(date);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
   }
 
   return (
@@ -165,22 +190,74 @@ export default function App() {
                   <li
                     key={e.id}
                     className="p-3 rounded border grid sm:grid-cols-12 gap-3 items-center">
+                    {/* Bal blokk: projekt + note */}
                     <div className="sm:col-span-7">
                       <div className="font-medium">
                         {projects.find((p) => p.id === e.projectId)?.name ??
                           `Project #${e.projectId}`}
                       </div>
-                      <div className="text-sm opacity-70">{e.note || "—"}</div>
+                      <div className="text-sm opacity-70 mt-1">
+                        {editingId === e.id ? (
+                          <input
+                            className="input input-bordered w-full"
+                            value={editNote}
+                            onChange={(ev) => setEditNote(ev.target.value)}
+                            placeholder="Note"
+                          />
+                        ) : (
+                          e.note || "—"
+                        )}
+                      </div>
                     </div>
-                    <div className="sm:col-span-5 flex items-center justify-end gap-2">
-                      <span className="font-semibold">
-                        {e.durationMinutes} min
-                      </span>
-                      <button
-                        className="btn btn-error btn-sm"
-                        onClick={() => onDelete(e.id)}>
-                        Delete
-                      </button>
+
+                    {/* Közép: percek */}
+                    <div className="sm:col-span-3">
+                      {editingId === e.id ? (
+                        <input
+                          type="number"
+                          min={1}
+                          step={15}
+                          className="input input-bordered w-full"
+                          value={editMinutes}
+                          onChange={(ev) =>
+                            setEditMinutes(Number(ev.target.value))
+                          }
+                          placeholder="Minutes"
+                        />
+                      ) : (
+                        <span className="font-semibold">
+                          {e.durationMinutes} min
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Jobb blokk: akciók */}
+                    <div className="sm:col-span-2 flex items-center justify-end gap-2">
+                      {editingId === e.id ? (
+                        <>
+                          <button
+                            className="btn btn-success btn-sm"
+                            onClick={() => saveEdit(e.id)}>
+                            Save
+                          </button>
+                          <button className="btn btn-sm" onClick={cancelEdit}>
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="btn btn-sm"
+                            onClick={() => startEdit(e)}>
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-error btn-sm"
+                            onClick={() => onDelete(e.id)}>
+                            Delete
+                          </button>
+                        </>
+                      )}
                     </div>
                   </li>
                 ))}
