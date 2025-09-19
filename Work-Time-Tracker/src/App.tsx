@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getJSON, sendJSON } from "./lib/api";
 import type { Project, TimeEntry } from "./types";
+import { formatDateDisplay } from "./utils/date";
 
 export default function App() {
   const [date, setDate] = useState<string>(
@@ -105,7 +106,9 @@ export default function App() {
         {/* Daily list */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
-            <h2 className="text-xl font-semibold mb-2">Entries — {date}</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              Entries — {formatDateDisplay(date)}
+            </h2>
             {entries.length === 0 ? (
               <p className="opacity-70">No entries for this day yet.</p>
             ) : (
