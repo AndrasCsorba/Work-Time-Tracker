@@ -1,3 +1,4 @@
+// src/lib/api.ts
 export const API = "http://localhost:4001";
 
 export async function getJSON<T>(path: string): Promise<T> {

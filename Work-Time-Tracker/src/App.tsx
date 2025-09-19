@@ -1,12 +1,30 @@
 import { useEffect, useState } from "react";
-import { getJSON, sendJSON } from "./lib/api";
-import type { Project, TimeEntry } from "./types";
-import { formatDateDisplay } from "./utils/dates";
+import { API, getJSON, sendJSON } from "./lib/api";
+
+// ---- types ----
+type Project = { id: number; name: string; client?: string; isActive: boolean };
+type TimeEntry = {
+  id: number;
+  userId: number;
+  projectId: number;
+  date: string;
+  durationMinutes: number;
+  note?: string;
+};
+
+// ---- small helpers (local, no imports) ----
+function formatDateDisplay(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return `${d}-${m}-${y}`;
+}
+function todayLocalISODate(): string {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+}
 
 export default function App() {
-  const [date, setDate] = useState<string>(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [date, setDate] = useState<string>(todayLocalISODate());
   const [projectId, setProjectId] = useState<number>(1);
   const [minutes, setMinutes] = useState<number>(60);
   const [note, setNote] = useState<string>("");
@@ -16,28 +34,20 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // load projects once
   useEffect(() => {
     getJSON<Project[]>("/projects").then(setProjects).catch(console.error);
   }, []);
-  
-  async function onDelete(id: number) {
-    const sure = confirm("Delete this entry?");
-    if (!sure) return;
-    try {
-      await fetch(`http://localhost:4000/time-entries/${id}`, {
-        method: "DELETE",
-      });
-      await loadDay(date); // list reload
-    } catch (e) {
-      alert("Delete failed.");
-    }
-  }
 
+  // robust day loader with debug logs
   async function loadDay(d: string) {
-    const q = new URLSearchParams({ userId: "1", date_gte: d, date_lte: d });
-    const data = await getJSON<TimeEntry[]>(`/time-entries?${q.toString()}`);
+    const url = `/time-entries?userId=1&date=${encodeURIComponent(d)}`;
+    console.log("GET", API + url);
+    const data = await getJSON<TimeEntry[]>(url);
+    console.log("RESP", data);
     setEntries(data);
   }
+
   useEffect(() => {
     loadDay(date);
   }, [date]);
@@ -64,10 +74,17 @@ export default function App() {
     }
   }
 
+  async function onDelete(id: number) {
+    const sure = confirm("Delete this entry?");
+    if (!sure) return;
+    await fetch(`${API}/time-entries/${id}`, { method: "DELETE" });
+    await loadDay(date);
+  }
+
   return (
     <div className="min-h-screen bg-base-200 p-6" data-theme="light">
       <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
-        {/* Form */}
+        {/* ---- FORM ---- */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body space-y-3">
             <h1 className="text-2xl font-bold">Work Time — Entry</h1>
@@ -116,16 +133,30 @@ export default function App() {
           </div>
         </div>
 
-        {/* Daily list */}
+        {/* ---- DAILY LIST ---- */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="text-xl font-semibold mb-2">
               Entries — {formatDateDisplay(date)}
             </h2>
-            // Debug count
+
+            {/* DEBUG PANEL */}
             <p className="text-xs opacity-60 mb-2">
-              Debug count: {entries.length}
+              Debug API: {API} • Date: {date} • Count: {entries.length}
             </p>
+            <button
+              type="button"
+              className="btn btn-sm mb-2"
+              onClick={async () => {
+                const all = await getJSON<TimeEntry[]>(
+                  `/time-entries?userId=1`
+                );
+                console.log("ALL (first 5):", all.slice(0, 5));
+                setEntries(all); // show all for quick check
+              }}>
+              Debug: load all
+            </button>
+
             {entries.length === 0 ? (
               <p className="opacity-70">No entries for this day yet.</p>
             ) : (
@@ -133,19 +164,18 @@ export default function App() {
                 {entries.map((e) => (
                   <li
                     key={e.id}
-                    className="p-3 rounded border flex items-center justify-between">
-                    <div>
+                    className="p-3 rounded border grid sm:grid-cols-12 gap-3 items-center">
+                    <div className="sm:col-span-7">
                       <div className="font-medium">
                         {projects.find((p) => p.id === e.projectId)?.name ??
                           `Project #${e.projectId}`}
                       </div>
                       <div className="text-sm opacity-70">{e.note || "—"}</div>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="font-semibold">
+                    <div className="sm:col-span-5 flex items-center justify-end gap-2">
+                      <span className="font-semibold">
                         {e.durationMinutes} min
-                      </div>
+                      </span>
                       <button
                         className="btn btn-error btn-sm"
                         onClick={() => onDelete(e.id)}>
