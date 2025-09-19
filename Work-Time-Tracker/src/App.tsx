@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getJSON, sendJSON } from "./lib/api";
 import type { Project, TimeEntry } from "./types";
-import { formatDateDisplay } from "./utils/date";
+import { formatDateDisplay } from "./utils/dates";
 
 export default function App() {
   const [date, setDate] = useState<string>(
