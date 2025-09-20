@@ -23,14 +23,6 @@
   ],
   "time-entries": [
     {
-      "id": "1",
-      "userId": 1,
-      "projectId": 1,
-      "date": "2025-09-20",
-      "durationMinutes": 30,
-      "note": "Test entry"
-    },
-    {
       "id": "4946",
       "userId": 1,
       "projectId": 2,
