@@ -12,11 +12,11 @@ type TimeEntry = {
   note?: string;
 };
 
-// --- helpers (local) ---
+// --- helpers (local date formatting) ---
 function formatDateDisplay(iso: string): string {
-  const [y, m, d] = iso.split("-");
-  return `${d}-${m}-${y}`;
+  return iso;
 }
+
 function todayLocalISODate(): string {
   const d = new Date();
   d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -88,7 +88,7 @@ export default function App() {
       return;
     }
 
-    // Frissítsük a napi listát a szerverről
+    // refresh list von der API holen
     await loadDay(date);
   }
 
