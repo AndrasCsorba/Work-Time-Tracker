@@ -5,6 +5,7 @@
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",
     "daisyui": "^5.0.54",
+    "gh-pages": "^6.3.0",
     "json-server": "^1.0.0-beta.3",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.12",
@@ -12,9 +13,9 @@
     "vite": "^7.1.6"
   },
   "dependencies": {
+    "json-server": "^1.0.0-beta.3",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "json-server": "^1.0.0-beta.3"
+    "react-dom": "^19.1.1"
   },
   "scripts": {
     "dev": "vite",
