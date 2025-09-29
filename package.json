@@ -1,28 +1,27 @@
 {
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.1.12",
-    "@vitejs/plugin-react": "^5.0.3",
-    "autoprefixer": "^10.4.21",
-    "concurrently": "^9.2.1",
-    "daisyui": "^5.0.54",
-    "gh-pages": "^6.3.0",
-    "json-server": "^1.0.0-beta.3",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.12",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.6"
-  },
-  "dependencies": {
-    "json-server": "^1.0.0-beta.3",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
-  },
+  "name": "work-time-tracker-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "json-server db.json --port 4001",
-    "dev:full": "concurrently \"vite\" \"json-server db.json --port 4001\"",
-    "start": "json-server db.json --port $PORT"
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.12",
+    "@vitejs/plugin-react": "^5.0.3",
+    "autoprefixer": "^10.4.21",
+    "daisyui": "^5.0.54",
+    "gh-pages": "^6.0.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.6"
   }
 }
