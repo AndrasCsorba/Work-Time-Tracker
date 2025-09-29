@@ -1,5 +1,5 @@
 // src/lib/api.ts
-export const API = "http://localhost:4001";
+export const API = "https://work-time-tracker-api.onrender.com/";
 
 export async function getJSON<T>(path: string): Promise<T> {
   const res = await fetch(`${API}${path}`);
