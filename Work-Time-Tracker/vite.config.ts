@@ -4,5 +4,5 @@ import tailwind from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwind()],
-  base: "/Work-Time-Tracker/", // <-- nagyon fontos a Pages-hez
+  base: "/Work-Time-Tracker/",
 });
